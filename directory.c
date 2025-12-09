@@ -4,8 +4,7 @@
 
 extern Directory directory;
 
-void createFile(char* name, int size) {
-    printf("[DEBUG] Creating file: %s (Josh to implement)\n", name);
+void createFile(char* name, int size){
     int start = findFreeBlock();
 
     if(start == -1){
@@ -39,6 +38,28 @@ void createFile(char* name, int size) {
     printf("File '%s' created successfully!\n", name);
 }
 
+// Helper for createFile
+int findInsertionIndex(Directory* dir, char* name){
+    int left = 0;
+    int right = dir->fileCount - 1;
+
+    while(left <= right){
+        int mid = left + (right - left) / 2;
+        int cmp = strcmp(dir->files[mid].fileName, name);
+
+        if(cmp == 0){
+            return mid; 
+        }
+        else if(cmp < 0){
+            left = mid + 1;
+        }
+        else{
+            right = mid - 1;
+        }
+    }
+
+    return left;
+}
 void deleteFile(char* name) {
     printf("[DEBUG] Deleting file: %s (Josh to implement)\n", name);
         int index = searchFile(&directory, name);
