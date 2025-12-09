@@ -3,11 +3,37 @@
 // --- ZORAIZ'S IMPLEMENTATION ---
 
 void initSystem() {
-    printf("[DEBUG] System Initialized (Zoraiz to implement memory clearing)\n");
-    // Code to zero out virtualDisk and freeBlockMap
+    // Zero out the virtualDisk
+    for (int i = 0; i < DISK_SIZE; i++) {
+        for (int j = 0; j < BLOCK_SIZE; j++) {
+            virtualDisk[i][j] = 0;
+        }
+    }
+    
+    // Initialize freeBlockMap (0 = free, 1 = occupied)
+    for (int i = 0; i < DISK_SIZE; i++) {
+        freeBlockMap[i] = 0;
+    }
+    
+    // Initialize directory
+    dir.fileCount = 0;
+    
+    // Initialize open file table
+    for (int i = 0; i < MAX_OPEN_FILES; i++) {
+        openFileTable[i].isOpen = false;
+        openFileTable[i].fileID = -1;
+        openFileTable[i].currentPointer = 0;
+    }
+    
+    printf("System initialized successfully.\n");
 }
 
 int findFreeBlock() {
-    // Code to find first available block in freeBlockMap
-    return -1; // Placeholder
+    // Find first contiguous free block
+    for (int i = 0; i < DISK_SIZE; i++) {
+        if (freeBlockMap[i] == 0) {
+            return i;
+        }
+    }
+    return -1; // No free blocks
 }

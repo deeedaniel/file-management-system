@@ -55,5 +55,7 @@ int searchDirectory(char* name);
 // DANIEL'S TASKS (main.c)
 void openFile(char* name);
 void closeFile(char* name);
+void writeFile(char* name, const char* data, int length);
+void readFile(char* name);
 
 #endif
