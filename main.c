@@ -55,6 +55,70 @@ void closeFile(char* name) {
     printf("Error: File '%s' is not currently open.\n", name);
 }
 
+void writeFile(char* name, const char* data, int length) {
+    int  fileID = searchDirectory(name);
+
+    if(fileID == -1) {
+        printf("Error: File '%s' not found.\n", name);
+        return;
+    }
+
+    OpenFileEntry* openEntry = NULL;
+
+    for(int i = 0; i < MAX_OPEN_FILES; i++) {
+        if(openFileTable[i].isOpen && openFileTable[i].fileID == fileID) {
+            openEntry = &openFileTable[i];
+            break;
+        }
+    }
+
+    if(openEntry == NULL) {
+        printf("Error: File '%s' is not open.\n", name);
+        return;
+    }
+
+    FCB* file = &dir.files[fileID];
+
+    int remaining = file->size - openEntry->currentPointer;
+    if(remaining <= 0) {
+        printf("Error: No space left in file '%s'.\n", name);
+        return;
+    }
+
+    int toWrite;
+
+    if(length > remaining) {
+        toWrite = remaining;
+    } else {
+        toWrite = length;
+    }
+
+    int absolutePosition = openEntry->currentPointer;
+    int blockIndex = absolutePosition / BLOCK_SIZE;
+    int blockOffset = absolutePosition % BLOCK_SIZE;
+    int diskBlock = file->startBlock + blockIndex;
+    int bytesWritten = 0;
+
+    while(bytesWritten < toWrite) {
+        virtualDisk[diskBlock][blockOffset] = data[bytesWritten];
+
+        bytesWritten++;
+        blockOffset++;
+
+        if(blockOffset == BLOCK_SIZE) {
+            blockOffset = 0;
+            diskBlock++;
+
+            if(diskBlock >= file->startBlock + file->numBlocks) {
+                break;
+            }
+        }
+    }
+
+    openEntry->currentPointer += bytesWritten;
+    printf("Wrote %d bytes to file '%s'.\n", bytesWritten, name);
+}
+
 int main() {
     initSystem(); // Calls Zoraiz's function
     
